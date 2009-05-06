@@ -33,7 +33,7 @@ package Net::Lookup::DotTel;
 use strict;
 use warnings;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use Carp;
 use Net::DNS;
@@ -437,33 +437,41 @@ sub get_services {
 
       if ( $n->type eq 'NAPTR' ) {
 
-        my @services = split ( /\+/, $n->service );
-        if ( grep m/^$service(:.+)?$/, @services ) {
+        my @services;
+        my $value = '';
 
-          # Service matches query. Determine the service URI.
+        if ( $n->flags eq 'u' ) {
 
-          my $value = $n->name;
-          my $regexp = $n->regexp;
+          # Terminal NAPTR
 
-          # Note that the following is not entirely correct; it does not
-          # allow for escaping the delim-char that is used.
+          @services = split ( /\+/, $n->service );
+          if ( (!$service) || (grep m/^$service(:.+)?$/, @services )) {
 
-          my ( $match, $replacement ) = split ( substr ( $regexp, 0, 1), substr ( $regexp, 1 ));
-          $value =~ s/$match/$replacement/e;
-          $value ||= $regexp;	# For 'fixing' thoroughly broken regexps
+            # Service matches query. Determine the service URI.
 
-          push @results, {
-            services => \@services,
-            uri => $value || '',
-            label => ( grep m/^x-lbl:(.+)$/, @services )[0] || '',
-            order => $n->order || 0,
-            preference => $n->preference || 0,
-            flags => $n->flags || '',
-            regexp => $n->regexp || '',
-            replacement => $n->replacement || ''
-          };
+            $value = $n->name;
+            my $regexp = $n->regexp;
 
-        }
+            # Note that the following is not entirely correct; it does not
+            # allow for escaping the delim-char that is used.
+
+            my ( $match, $replacement, $flags ) = split ( substr ( $regexp, 0, 1), substr ( $regexp, 1 ));
+            $value =~ s/$match/$replacement/e;
+            $value ||= $regexp;	# For 'fixing' thoroughly broken regexps
+          }
+
+        } # end Terminal NAPTR
+
+        push @results, {
+          services => \@services,
+          uri => $value || '',
+          label => ( grep m/^x-lbl:(.+)$/, @services )[0] || '',
+          order => $n->order || 0,
+          preference => $n->preference || 0,
+          flags => $n->flags || '',
+          regexp => $n->regexp || '',
+          replacement => $n->replacement || ''
+        };
       }
     }
   }
@@ -535,7 +543,7 @@ sub get_text {
 
 =head1 AUTHOR
 
-Sebastiaan Hoogeveen, < pause-zebaz at nederhost.nl >
+Sebastiaan Hoogeveen, <pause-zebaz@nederhost.nl>
 
 =head1 SEE ALSO
 
