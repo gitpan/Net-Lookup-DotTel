@@ -1,4 +1,4 @@
-use Test::More tests => 14;
+use Test::More tests => 15;
 
 use Net::Lookup::DotTel;
 use Net::DNS;
@@ -6,6 +6,7 @@ use Net::DNS;
 # The test domain is owned by the author and should have the fields tested
 # here associated with it.
 use constant TEST_DOMAIN => 'nederhost.tel';
+use constant TEST_SUBDOMAIN => 'cpan.sebastiaanhoogeveen.tel';
 
 # Find out whether we can do any lookups at all.
 my $dns = Net::DNS::Resolver->new;
@@ -14,10 +15,10 @@ ok ( $dns, 'Net::DNS::Resolver->new()' );
 SKIP: {
 
   my $response = $dns->query ( TEST_DOMAIN, 'NS' );
-  skip ( 'network lookup tests - no response from resolver, not connected to the internet?', 13 )
+  skip ( 'network lookup tests - no response from resolver, not connected to the internet?', 14 )
     unless ( $response );
 
-  skip ( 'domain parsing tests - domain name ' . TEST_DOMAIN . ' not found', 13 )
+  skip ( 'domain parsing tests - domain name ' . TEST_DOMAIN . ' not found', 14 )
     unless (( $response->question )[0]->qname eq 'nederhost.tel' );
 
   my $lookup = Net::Lookup::DotTel->new;
@@ -48,6 +49,8 @@ SKIP: {
   
   my @text = $lookup->get_text;
   ok ( scalar @text, 'get_text()' );  
+
+  ok ( $lookup->lookup ( TEST_SUBDOMAIN ), 'lookup() with valid third level domain' );
 
 }
 

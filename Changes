@@ -1,3 +1,9 @@
+**** 0.03 May 13, 2009
+
+Fixed handling of third level domains by lookup(). The lookup() method now
+uses a query for 'any' records (instead of 'ns') to see if a domain exists.
+Reported by Ralph Bullet.
+
 **** 0.02 May 6, 2009
 
 Fixed processing of non-terminal NAPTR records and handling of

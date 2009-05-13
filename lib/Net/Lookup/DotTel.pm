@@ -33,7 +33,7 @@ package Net::Lookup::DotTel;
 use strict;
 use warnings;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use Carp;
 use Net::DNS;
@@ -95,7 +95,7 @@ sub lookup {
 
   croak "No domain specified" unless ( $domain );
 
-  if ( my $response = $self->{resolver}->query ( $domain, 'NS' )) {
+  if ( my $response = $self->{resolver}->query ( $domain, 'ANY' )) {
     $self->{current_domain} = ( $response->question )[0]->qname;
     return 1;
   }
